@@ -13,12 +13,13 @@ int main()
     pcl::PointCloud<pcl::PointXYZ> cloud;
 
     // Fill in the cloud data
+    int pile_size = 30;
     cloud.width = 360;
-    cloud.height = 16;
+    cloud.height = pile_size*2;
     cloud.points.resize(cloud.width * cloud.height);
 
-    long point_num;
-    double r=10; // 半径
+    int point_num;
+    double r=20; // 半径
     cout<<"cloud.height: "<<cloud.height<<endl;
 
     //添加高斯噪声
@@ -27,9 +28,9 @@ int main()
     boost::normal_distribution<> nd(0, 0.5);
     boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > var_nor(rng, nd);//产生随机/数
 
-    for(int z=0;z<cloud.height;++z)
+    for(int z=0;z<pile_size;++z)
     {
-        cout<<"r: "<<r<<endl;
+        cout<<"z: "<<z<<",r: "<<r<<endl;
 
         for(int loop=0;loop<360;++loop)
         {
@@ -41,12 +42,14 @@ int main()
             //或者为0.3*static_cast<float>(z);目地在于int转换为float
 
             // 第二个圆堆
-            cloud.points[point_num].x = r*cos(hudu);// + static_cast<float> (var_nor());
-            cloud.points[point_num].y = r*sin(hudu);// + static_cast<float> (var_nor());
-            cloud.points[point_num].z = 0.5*(z+1.0f);// + static_cast<float> (var_nor());
+//            if(hudu>2*PI/3 && hudu<4*PI/3) //hudu<3/PI || hudu>5*PI/3
+//                continue;
+            cloud.points[cloud.width*pile_size + point_num].x = r*cos(hudu) + 25;// + static_cast<float> (var_nor());
+            cloud.points[cloud.width*pile_size + point_num].y = r*sin(hudu) + 5;// + static_cast<float> (var_nor());
+            cloud.points[cloud.width*pile_size + point_num].z = 0.5*(z+1.0f);// + static_cast<float> (var_nor());
         }
         if (r > 0.6)
-            r=r-0.6;
+            r=r-0.65;
     }
     pcl::io::savePCDFile("cloud.pcd", cloud);
     return 0;
