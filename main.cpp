@@ -7,18 +7,19 @@
 
 using namespace std;
 #define PI 3.1415926535
-const int num_coalpile = 4; // 煤堆个数
+const int num_coalpile = 2; // 煤堆个数
 
 int main()
 {
+    std::string save_name = "cloud.pcd";
     double R[]={50, 50, 50, 50}; // 圆圈起始半径
     double HUDU[][2]={ {112, 248}, {65, 188}, {115, 352}, {68, 292} }; // 圆圈起始弧度
-    double t_center[][2] = {
+    double t_center[][2] = { // 每个煤堆中心偏移的距离
         {-1.5, 0},
         {-0.75, 1.29},
         {0.75, 1.29},
         {1.5, 0}
-    }; // 每个煤堆中心偏移的距离
+    };
     double r_const;
     const double loop_diff =0.5; // 两个点之间相邻的度数
     const double r_diff = 0.75; // 圆上下层的差
@@ -58,21 +59,11 @@ int main()
 
             for(double loop=0;loop<360;loop=loop+loop_diff)
             {
-                if(i==0 || i==1)
-                {
-                    //cout<<"i: "<<i<<endl;
-                    if(loop > hudu1 && loop < hudu2 && h < 16)
-                        continue;
-                }
-                else if(i==2 || i==3)
-                {
-                    //cout<<"i: "<<i<<endl;
-                    if((loop > 0 && loop < hudu1) || (loop > hudu2 && loop < 360))
-                    {
-                        cout<<"loop: "<<loop<<endl;
-                        continue;
-                    }
-                }
+
+                if(loop > hudu1 && loop < hudu2 && h < 16)
+                    continue;
+
+
                 float hudu = loop * PI / 180;
                 double x = r*cos(hudu) + (r_const * t_center[i][0]) + static_cast<float> (var_nor());
                 double y = r*sin(hudu) + (r_const * t_center[i][1]) + static_cast<float> (var_nor());
@@ -82,25 +73,18 @@ int main()
                 cloud.points[num_points].z = z;
                 num_points++;
 
-//                cloud.points[num_points].x = -x;
-//                cloud.points[num_points].y = y;
-//                cloud.points[num_points].z = z;
-//                num_points++;
+                cloud.points[num_points].x = -x;
+                cloud.points[num_points].y = y;
+                cloud.points[num_points].z = z;
+                num_points++;
             }
 
 
             if (r > r_diff)
                 r=r-r_diff;
-            if(i==0 || i==1)
-            {
-                hudu1 += init_hudu; // 上层的圆圈画的大一些
-                hudu2 -= init_hudu;
-            }
-            else if(i==2 || i==3)
-            {
-                hudu1 -= init_hudu; // 上层的圆圈画的大一些
-                hudu2 += init_hudu;
-            }
+
+            hudu1 += init_hudu; // 上层的圆圈画的大一些
+            hudu2 -= init_hudu;
             init_hudu += delta_hudu;
 
             // 把最上层的圆填满
@@ -120,10 +104,10 @@ int main()
                         cloud.points[num_points].z = z;
                         num_points++;
 
-//                        cloud.points[num_points].x = -x;
-//                        cloud.points[num_points].y = y;
-//                        cloud.points[num_points].z = z;
-//                        num_points++;
+                        cloud.points[num_points].x = -x;
+                        cloud.points[num_points].y = y;
+                        cloud.points[num_points].z = z;
+                        num_points++;
                     }
                 }
             }
@@ -136,6 +120,6 @@ int main()
     cloud.points.resize(cloud.width * cloud.height);
     cout<<"cloud points: "<<cloud.points.size()<<endl;
 
-    pcl::io::savePCDFile("cloud.pcd", cloud);
+    pcl::io::savePCDFile(save_name, cloud);
     return 0;
 }
